@@ -1,0 +1,26 @@
+{
+  "name": "dashbois",
+  "version": "0.0.1",
+  "description": "A multiplayer brawl game.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/riotrah/DashBois.git"
+  },
+  "author": "riotrah",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/riotrah/DashBois/issues"
+  },
+  "homepage": "https://github.com/riotrah/DashBois#readme",
+  "dependencies": {
+    "express": "^4.15.2",
+    "socket.io": "^1.7.3"
+  },
+  "devDependencies": {
+    "eslint": "^3.17.1"
+  }
+}

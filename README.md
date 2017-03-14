@@ -5,10 +5,10 @@ A multiplayer browser game! Gonna start with basic io and progress to interactiv
 
 ### Basic Engine
 
-- [ ] Server Framework Setup
-- [ ] Player connections
-- [ ] Player input
-- [ ] Player movement
+- [x] Server Framework Setup
+- [x] Player connections
+- [x] Player input
+- [x] Player movement
 - [ ] Player naming
 - [ ] Speed
 - [ ] Gravity

@@ -1,5 +1,34 @@
 # DashBois
-A multiplayer browser game! Gonna start with basic io and progress to interactivity, movement and more.
+
+A multiplayer browser battle platformer! Inspired by Super Smash Bros and DiveKick. Gonna start with basic io and then will progress to interactivity, movement and more.
+
+Gameplay consists of jumping, dashing and (tentatively) dodging:
+
+- Combat only occurs *in air*!
+
+- To attack another player, they *must* dash into them!
+
+## Testing
+
+To run server (assuming node is installed on system):
+
+`$ node app.js`
+
+and connect from your browser at. No graphics yet. Your char sprite is just your connection id.
+
+`localhost:8083`
+
+Controls are (currently):
+
+`Walking: left and right arrow keys`
+
+`Jump: spacebar when on ground`
+
+`Dash: spacebar + desired arrow key when mid-jump`
+
+`Float: spacebar without arrow key when mid-jump`
+
+`Dodge: down arrow key + left/right arrow key + spacebar when on ground`
 
 ## ToDo:
 
@@ -21,14 +50,16 @@ A multiplayer browser game! Gonna start with basic io and progress to interactiv
 ### Mechanics
 
 - [x] Jumping
-- [ ] Dodging
+- [x] Dodging - broken :(
 - [x] Dashing
+- [ ] Level reading
+- [ ] Level creating
+- [ ] Level generating?
 
 ### Gfx
 
 - [ ] UI
 - [ ] Player sprites
-- [ ] Level reading
 - [ ] Background gfx
 - [ ] Platforms
 
@@ -42,6 +73,9 @@ A multiplayer browser game! Gonna start with basic io and progress to interactiv
 - [ ] Menu pages
 - [ ] Default/unnamed player attribs
 - [ ] Chat bar
+- [ ] Tutorial
+- [ ] Controls Screen
+- [ ] Settings
 
 ### Network
 

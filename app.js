@@ -185,8 +185,6 @@ class Player extends Entity {
     	this.maxDashTime = 20;
     	// Holding current dash time
     	this.dashTimer = -1;
-    	// Holding previous tick's dashTimer for physics purposes
-    	this.prevDashTimer = 0;
 
     	// Dodging speed
 		this.dodgeSpeed = 30;
@@ -277,28 +275,33 @@ class Player extends Entity {
 		// Sets movement state
 		this.inDash = true;
 
-		// Gets direction of keyPresses
+		// Get direction of keyPresses
 		const dir = this.direction();
 		console.log(dir);
 
-		// If both axes are activated, reduce dash speed 
+		// If both axes are activated, reduce dash time 
 		if(dir.x && dir.y){
 
-			this.xSpeed = dir.x * this.dashSpeed * .50;
-			this.ySpeed = dir.y * this.dashSpeed * .50;
+			this.xSpeed = dir.x * this.dashSpeed;
+			this.ySpeed = dir.y * this.dashSpeed;
+
+			// Start dash timer 
+			this.dashTimer = this.maxDashTime * .5;
 
 		} else { // Otherwise behave as normal
 
 			this.xSpeed = dir.x * this.dashSpeed;
 			this.ySpeed = dir.y * this.dashSpeed;
+			
+			// Start dash timer 
+			this.dashTimer = this.maxDashTime;
+		
 		}
 
 		// Reset any acceleration so as to prevent effects of Gravity during dash duration
 		this.yAccel = 0;
 		this.xAccel = 0;
 
-		// Start dash timer 
-		this.dashTimer = this.maxDashTime;
 	}
 
 	/**
@@ -308,66 +311,102 @@ class Player extends Entity {
 	 */
 	dodge() {
 
+		// Set movement state
 		this.inDodge = true;
+
+		// Get direction of keyPresses
 		const dir = this.direction();
 		console.log(dir);
 
+		// Set x speed to dodgeSpeed
 		this.xSpeed = dir.x * this.dodgeSpeed;
 
+		// Start dodge timer
 		this.dodgeTimer = this.maxDodgeTime;
 	}
 
 	/**
-	 * [jump description]
-	 * @return {[type]} [description]
+	 * Jump method.
+	 * Performs parabolic arc jump 
 	 */
 	jump() {
 
+		// Set movement state
 		this.inJump = true;
+
+		// Get direction of keyPresses
 		let dir = this.direction();
+
+		// Set ySpeed to this's jumpSpeed
 		this.ySpeed = this.jumpSpeed;
+
+		// Set xSpeed to jump in the direction according to keyPresses
 		this.xSpeed = dir.x * this.jumpSpeed;
 	}
 
 	/**
-	 * [updateOnGround description]
-	 * @return {[type]} [description]
+	 * Updates ground state.
+	 * Currently checkes by seeing if this is at level bottom due to lack of platforms!
+	 * Updates dash and jump states accordingly.
+	 * 
+	 * @return Boolean [True if on ground]
 	 */
 	updateOnGround() {
 
+		// If standing on ground (currently level bottom)
 		if(this.y >= levelHeight - (this.height/2)) {
 			
+			// Set movement states
 			this.onGround = true;
 			this.inJump = false;
 			this.inDash = false;
+
+			// Reset dash timer to ground state (-1)
 			this.dashTimer = -1;
+
 			return true;
 		}
 
+		// Clearly isn't on the ground
 		this.onGround = false;
+
 		return false;
 	}
    
     /**
-     * [updateOnGround description]
-     * @return {[type]} [description]
+     * Updates speed of this.
+     * Sets axes speeds according to movement conditions and keyPresses
      */
     updateSpeed() {
   
-    	if(this.dashTimer === 0) { // If no longer dashing
-    		
-    		this.yAccel = GRAVITY * 1; // Harsher fall from dash
+  		// If no longer dashing
+    	if(this.dashTimer === 0) {
+
+    		// Set movement state
+    		// this.inDash = false;
+
+    		// Resume GRAVITY
+    		this.yAccel = GRAVITY * 1; 
+
     		// this.ySpeed -= (-this.yAccel)/2;
-    		this.ySpeed += 15;
-    		this.xSpeed /= (this.yAccel * 1.5);
+    		
+    		// Make drop a little harsher from dash
+    		this.ySpeed += 10; 
+
+    		// Reduce x axis momentum from jump
+    		this.xSpeed /= 4.5;
+
+    		// Reset dashTimer to -1
     		this.dashTimer--;
-    		// console.log('Done!');
+
+    		// Reset dash state
+    		this.inDash = false;
     	}
+   	
+   		// If simply on the ground
+        if(this.onGround && !this.inDash) {
 
-    	this.updateOnGround();
-    	
-        if (this.onGround) {
-
+        	// Set movement and direction based on keyPresses
         	if(this.pressingRight)
         		this.xSpeed = this.walkSpeed;
         	else if(this.pressingLeft)
@@ -375,37 +414,43 @@ class Player extends Entity {
         	else 
         		this.xSpeed = 0;
         }
+
+        // If jumping, influence x speed slightly only
+        if(this.inJump && !this.inDash) {
+
+        	// Get direction
+        	const dir = this.direction();
+
+        	this.xSpeed += dir.x * jumpSpeed;
+        }
     }
 
     /**
-     * [updateOnGround description]
-     * @return {[type]} [description]
+     * Main update method.
+     * Updates dash and dodge conditions and timers 
+     * Calls appropriate update methods.
      */
     update() {
     	
-    	if(this.dashTimer >= 0) { // If still dashing, reduce dash timer
+    	// If still dashing, reduce dash timer
+    	if(this.dashTimer > 0) { 
     		
-    		// console.log("dash", this.dashTimer);
-    		// console.log("prevdash", this.prevDashTimer);
     		this.dashTimer--;
     	
-    	} else if(this.dashTimer === 0) {
-    		
-    		this.inDodge = false;
-    	
-    	}
+    	} 
 
-    	if(this.dodgeTimer > 0) { // If still dodging, reduce dash timer
+    	// If still dodging, reduce dodge timer
+    	if(this.dodgeTimer > 0) { 
     		
     		console.log("dodge", this.dodgeTimer);
     		this.dodgeTimer--;
     	
-    	} else if(!this.dodgeTimer) {
+    	} else if(!this.dodgeTimer) { // If not, reset dodge state
     		
     		this.inDodge = false;
     	}
     	
-    	this.prevDashTimer = this.dashTimer;
+    	// Call other update methods, including super's position update
     	this.updateOnGround();
         this.updateSpeed();
         super.update();
@@ -413,18 +458,23 @@ class Player extends Entity {
 
 }
 
+// Static object listing of all players in id:Object pairs
 Player.list = {};
 
 /**
- * Creation and management of each player
- * @return {[type]} [description]
+ * Static method for calling when sockets receive a new connection.
+ * Creates and manages each player.
+ * Sends keyPresses to each player.
+ * 
+ * @param Socket socket [The socket from the connected browser]
  */
 Player.onConnect = function(socket) {
 
+	// Create new player with given id property of socket.
 	const player = new Player(socket.id);
 	console.log(Player.list);
 
-	// Handling keypresses
+	// Handling keyPresses 
 	socket.on('keyPress', function(data) {
 		if(data.inputId === 'left')
     		player.pressingLeft = data.state;
@@ -442,24 +492,28 @@ Player.onConnect = function(socket) {
 }
 
 /**
- * [onDisconnect description]
- * @param  {[type]} socket [description]
- * @return {[type]}        [description]
+ * Static method for calling when the socket that created a player disconnects.
+ * Deletes the player.
+ * 
+ * @param Socket socket [The socket from the connected browser]
  */
 Player.onDisconnect = function(socket) {
 
+	// Simply delete the property and its value from the Player.list object
 	delete Player.list[socket.id];
 }
 
 /**
- * [onDisconnect description]
- * @param  {[type]} socket [description]
- * @return {[type]}        [description]
+ * Static method for updating every player.
+ * Called every tick.
+ * 
+ * @return Array        [An array holding objects. Each holds axes positions and an id for each player in Player.list]
  */
 Player.update = function() {
 
 	const pack = [];
 
+	// Loop thru every player and update them before adding their new positions to the client.
 	for (i in Player.list) {
 		
 		player = Player.list[i]
@@ -476,12 +530,14 @@ Player.update = function() {
 	return pack;
 }
 
-// Level Specific
+// Level Specific Info.
+// Will be made dynamic later!
+// These are in pixels.
 
 const levelWidth = 800;
 const levelHeight = 800;
 
-//// Express 
+//// Express Functionality
 
 const express = require('express');
 const app = express();
@@ -489,12 +545,14 @@ const app = express();
 // Handle home
 app.get('/', function(req, res) {
 
+	// Send client index.html
 	res.sendFile(__dirname + "/public/html/index.html");
 });
 
+// Handle requests to specific files such as client.js and media
 app.use('/public', express.static(__dirname + '/public'));
 
-//// Socket.io
+//// Socket.io Functionality
 
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
@@ -502,26 +560,38 @@ const SOCKET_LIST = {}; // Socket holder
 
 
 /**
- * [description]
- * @param  {[type]} socket) {	socket.id  [description]
- * @return {[type]}         [description]
+ * Connection handler
+ * Creates an ID for every new connection.
+ * Makes a player from that ID by calling Player.onConnect().
+ * 
+ * 
+ * @param  String 			[Condition flag. In this case, on connection]
+ * @param  Function 		[Callback function. In this case, an anon function]
  */
 io.sockets.on('connection', function(socket) {
 
+	// Generate random id for socket from 0 to 10.
 	socket.id = Math.floor(Math.random() * 10);
+	
+	// Add socket to global socket list.
 	SOCKET_LIST[socket.id] = socket;
 
+	// Create player from socket id.
 	Player.onConnect(socket);
-	console.log(socket.id);
+	console.log("Creating player", socket.id);
 
+	// Send level size info to client.
 	socket.emit('init', {
 		width: levelWidth,
 		height: levelHeight
 	});
 
+	// Once connected, set a handler for disconnects as well.
 	socket.on('disconnect', function() {
 
+		// Delete the socket from the list.
 		delete SOCKET_LIST[socket.id];
+		// Run player disconnect handler.
 		Player.onDisconnect(socket);
 	});
 });
@@ -529,14 +599,17 @@ io.sockets.on('connection', function(socket) {
 //// UPDATE FUNCTION
 
 /**
- * [description]
- * @param  {[type]} socket) {	socket.id  [description]
- * @return {[type]}         [description]
+ * Function that is called every tick defined in the engine consts section.
+ * Updates every player (eventually every entity as well)
+ * 
+ * @param  Function 		[The function to call every tick]
  */
 setInterval(function() {
 
+	// Create array to send to socket from Player.update().
 	const pack = Player.update();
 
+	// Send that pack to every client so everyone is sync'd
 	for (i in SOCKET_LIST) {
 		
 		socket = SOCKET_LIST[i];

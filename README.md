@@ -8,17 +8,21 @@ A multiplayer browser game! Gonna start with basic io and progress to interactiv
 - [x] Server Framework Setup
 - [x] Player connections
 - [x] Player input
+- [x] Entity / physics object definition
+- [x] Player definition
+- [ ] Non physics object definition
 - [x] Player movement
 - [ ] Player naming
-- [ ] Speed
-- [ ] Gravity
-- [ ] Jumping
-- [ ] Dashing
+- [x] Speed
+- [x] Gravity
 - [ ] Hitboxes / hit detection
+- [ ] Platforms / multiple 'grounds'
 
 ### Mechanics
 
-- [ ] Dashing
+- [x] Jumping
+- [ ] Dodging
+- [x] Dashing
 
 ### Gfx
 
@@ -37,4 +41,11 @@ A multiplayer browser game! Gonna start with basic io and progress to interactiv
 
 - [ ] Menu pages
 - [ ] Default/unnamed player attribs
-- [ ] Chat
+- [ ] Chat bar
+
+### Network
+
+- [ ] Interpolation
+- [ ] Client side prediction
+- [ ] Chat functionality
+- [ ] Lobbies

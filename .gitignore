@@ -39,4 +39,6 @@ jspm_packages
 # Sublime stuff
 *.sublime-*
 
+# Personal planning stuff
 plan.txt
+log.txt

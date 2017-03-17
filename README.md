@@ -1,7 +1,7 @@
 # DashBois
 A multiplayer browser game! Gonna start with basic io and progress to interactivity, movement and more.
 
-## Roadmap:
+## ToDo:
 
 ### Basic Engine
 
@@ -15,6 +15,10 @@ A multiplayer browser game! Gonna start with basic io and progress to interactiv
 - [ ] Jumping
 - [ ] Dashing
 - [ ] Hitboxes / hit detection
+
+### Mechanics
+
+- [ ] Dashing
 
 ### Gfx
 

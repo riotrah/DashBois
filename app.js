@@ -4,7 +4,7 @@
  * Probably should split into different files for more modularity, 
  * but this is it for now.
  * 
- * #riotrah
+ * @author Rayat Rahman <github.com/riotrah>
 */
 
 
@@ -75,9 +75,6 @@ class Entity {
 		// Basic pos change by speed
 		this.x += this.xSpeed;
 		this.y += this.ySpeed;
-		if(this.xAccel >= 1)	
-			console.log(this.xAccel);
-		// console.log(this.yAccel);
 
 		// X edge detection
 		if (this.x + this.width/2 > levelWidth) { // Right edge
@@ -162,12 +159,19 @@ class Player extends Entity {
 		this.id = id; // Unique ID
     	this.score = 0; // Score
 
+    	// Setting dimensions
+    	this.width = 64;
+    	this.height = 64;
+
     	// Holding keyPresses
  		this.pressingRight = false;
     	this.pressingLeft = false;
     	this.pressingUp = false;
     	this.pressingDown = false;
     	this.pressingJump = false;
+
+    	// Holding current facing direction, > 0 for right, < 0 for left
+    	this.facing = 1;
 
     	// Holding movement states
     	this.inJump = false;
@@ -189,26 +193,25 @@ class Player extends Entity {
     	// Dodging speed
 		this.dodgeSpeed = 30;
 		// Total time of dodge in frames
-    	this.maxDodgeTime = 10;
+    	this.maxDodgeTime = 5;
     	// Holding current dodge time
     	this.dodgeTimer = 0;
 
-
 		// Sprites Object
 		this.spritePaths = {
-			default: "/",
-			walk: "/",
-			jump: "/",
-			dash: "/",
-			dodge: "/",
-			fall: "/",
+			idle: "default_char/idle.png",
+			walk: "default_char/walk.png",
+			jump: "default_char/jump.png",
+			dash: "default_char/dash.png",
+			dodge: "default_char/dodge.png",
+			fall: "default_char/fall.png",
 		}
 
 		// Current sprite
-		this.currentSprite = "default";
+		this.currentSprite = "idle";
 
 		// Current sprite path
-		this.currentSpritePath = this.spritePaths[this.currentSprite];
+		this.currentSpritePath = "img/" + this.spritePaths[this.currentSprite];
 
 		// Adding to static Player.list
 	    Player.list[id] = this;
@@ -216,7 +219,8 @@ class Player extends Entity {
 	}
 
 	/**
-	 * Determines the direction the player is face based on current keyPresses
+	 * Determines the direction this is face based on current keyPresses.
+	 * Also performs important task of updating this's facing direction.
 	 * 
 	 * @return Object [An object pair with x and y properties holding either 1, 0 or -1 for whether a direction is pressed]
 	 */
@@ -224,10 +228,18 @@ class Player extends Entity {
 
 		let dir = {x: 0, y: 0};
 
-		if(this.pressingLeft)
+		if(this.pressingLeft) {
 			dir.x = -1;
-		if(this.pressingRight)
+			
+			if(!this.inDash)
+				this.facing = -1;
+		}
+		if(this.pressingRight) {
 			dir.x = 1;
+			
+			if(!this.inDash)
+				this.facing = 1;
+		}
 		if(this.pressingUp)
 			dir.y = -1;
 		if(this.pressingDown)
@@ -364,6 +376,9 @@ class Player extends Entity {
 			// Reset dash timer to ground state (-1)
 			this.dashTimer = -1;
 
+			// Make sure gravity returns to normal on ground
+			this.yAccel = GRAVITY;
+
 			return true;
 		}
 
@@ -400,16 +415,16 @@ class Player extends Entity {
     		this.dashTimer--;
 
     		// Reset dash state
-    		this.inDash = false;
+    		// this.inDash = false;
     	}
    	
    		// If simply on the ground
-        if(this.onGround && !this.inDash) {
+        if(this.onGround && !this.inDodge) {
 
         	// Set movement and direction based on keyPresses
-        	if(this.pressingRight)
+        	if(this.pressingRight) 
         		this.xSpeed = this.walkSpeed;
-        	else if(this.pressingLeft)
+        	else if(this.pressingLeft) 
         		this.xSpeed = -this.walkSpeed;
         	else 
         		this.xSpeed = 0;
@@ -423,6 +438,48 @@ class Player extends Entity {
 
         	this.xSpeed += dir.x * jumpSpeed;
         }
+    }
+
+    /**
+     * Updates the current sprite to send to the client.
+     */
+    updateSprite() {
+
+    	// Dashing
+    	if(this.inDash && this.dashTimer > -1)
+    		this.currentSprite = "dash";
+
+    	// Jumping
+    	else if(this.inJump && !this.inDash)
+    		this.currentSprite = "jump";
+
+    	// Post jump fall
+    	else if(this.ySpeed > 0)
+    		this.currentSprite = "fall";
+
+    	// Post dash fall
+    	else if(this.inDash && this.dashTimer >= 0)
+    		this.currentSprite = "fall";
+    	
+    	// Dodging
+    	else if(this.inDodge)
+    		this.currentSprite = "dodge";
+
+    	// Walking right
+    	else if(this.xSpeed > 0 && this.onGround)
+    		this.currentSprite = "walk";
+
+    	// Walking left (haven't flipped sprite yet)
+    	else if(this.xSpeed < 0 && this.onGround)
+    		this.currentSprite = "walk";
+
+    	// Idle/default
+    	else if(this.xSpeed === 0 && this.onGround)
+    		this.currentSprite = "idle";
+
+    	this.currentSpritePath = "img/" + this.spritePaths[this.currentSprite];
+    	// if(this.currentSprite !== "idle")
+    		// console.log(this.currentSpritePath);
     }
 
     /**
@@ -442,7 +499,7 @@ class Player extends Entity {
     	// If still dodging, reduce dodge timer
     	if(this.dodgeTimer > 0) { 
     		
-    		console.log("dodge", this.dodgeTimer);
+    		// console.log("dodge", this.dodgeTimer);
     		this.dodgeTimer--;
     	
     	} else if(!this.dodgeTimer) { // If not, reset dodge state
@@ -450,9 +507,13 @@ class Player extends Entity {
     		this.inDodge = false;
     	}
     	
+    	// Update facing direction
+    	this.direction();
+
     	// Call other update methods, including super's position update
     	this.updateOnGround();
         this.updateSpeed();
+    	this.updateSprite();
         super.update();
     }
 
@@ -520,9 +581,11 @@ Player.update = function() {
 
 		player.update();
 		pack.push({
+			spritePath: player.currentSpritePath,
 			x: player.x,
 			y: player.y,
-			id: player.id
+			id: player.id,
+			dir: player.facing
 		});
 
 	}

@@ -39,7 +39,6 @@ Controls are (currently):
 - [x] Player input
 - [x] Entity / physics object definition
 - [x] Player definition
-- [ ] Non physics object definition
 - [x] Player movement
 - [ ] Player naming
 - [x] Speed
@@ -50,7 +49,7 @@ Controls are (currently):
 ### Mechanics
 
 - [x] Jumping
-- [x] Dodging - broken :(
+- [x] Dodging
 - [x] Dashing
 - [ ] Level reading
 - [ ] Level creating
@@ -59,7 +58,8 @@ Controls are (currently):
 ### Gfx
 
 - [ ] UI
-- [ ] Player sprites
+- [x] Default Player sprites
+- [ ] Other Player sprites
 - [ ] Background gfx
 - [ ] Platforms
 
@@ -71,7 +71,7 @@ Controls are (currently):
 ### Presentation 
 
 - [ ] Menu pages
-- [ ] Default/unnamed player attribs
+- [x] Default/unnamed player attribs
 - [ ] Chat bar
 - [ ] Tutorial
 - [ ] Controls Screen
@@ -83,3 +83,12 @@ Controls are (currently):
 - [ ] Client side prediction
 - [ ] Chat functionality
 - [ ] Lobbies
+
+## Credits:
+
+Prototype player sprites:
+
+[Eris](http://opengameart.org/content/sprite-sheet-sidescoller-cycles)
+
+
+

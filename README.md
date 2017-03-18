@@ -14,7 +14,7 @@ To run server (assuming node is installed on system):
 
 `$ node app.js`
 
-and connect from your browser at. No graphics yet. Your char sprite is just your connection id.
+and connect from your browser at.
 
 `localhost:8083`
 

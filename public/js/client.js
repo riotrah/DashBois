@@ -11,6 +11,7 @@ const ctx = document.getElementById("ctx").getContext("2d");
 // Set some default level dimensions
 let levelWidth = 500;
 let levelHeight = 500;
+// let bg = "public/img/bg.png";
 
 // Create socket
 const socket = io();
@@ -29,6 +30,8 @@ socket.on('init', function(data) {
 	ctx.canvas.width = levelWidth;
 	ctx.canvas.height = levelHeight;
 	ctx.font = '30px Arial';
+
+	ctx.canvas.style.backgroundImage = "url('public/img/bg.png')";
 });
 
 /**

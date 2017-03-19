@@ -646,7 +646,8 @@ io.sockets.on('connection', function(socket) {
 	// Send level size info to client.
 	socket.emit('init', {
 		width: levelWidth,
-		height: levelHeight
+		height: levelHeight,
+		bg: "public/img/bg.png"
 	});
 
 	// Once connected, set a handler for disconnects as well.

@@ -12,8 +12,155 @@
 
 // Engine constants
 const FPS = 60; // How many frames per second we're updating the game.
-const TICK_INTERVAL = 1000 / FPS; // The length of each tick 
-const GRAVITY = 1; // Gravity constant: how many pixels per tick per tick to push entities downwards
+const TICK_INTERVAL = 1000 / FPS; // The length of each tick.
+const GRAVITY = 1; // Gravity constant: how many pixels per tick per tick to push entities downwards.
+const TILE_LENGTH = 64; // Standard pixle length of tiles in tilemap.
+
+/**
+ * Class representing tilemap.
+ */
+class Map {
+
+	/**
+	 * Constructor.
+	 */
+	constructor(tileLength, dimension, givenTiles) {
+
+		// Set global tileLength
+		this.tileLength = tileLength;
+
+		// Set map dimensions
+		this.dimension = dimension;
+
+		// 2D array representing the tiles
+		this.tiles = [];
+		
+		this.parse(givenTiles);
+
+		this.textureArray = [];
+		this.tilesToTextures();
+	}
+
+	/**
+	 * Creates an array of Tile Objects from the given array of tile types.
+	 * 
+	 * @param  Array tiles [Tile type array to be converted]
+	 */
+	parse(tiles) {
+		
+		// Create a new Tile object from the given tile type for each element in the array.
+		for(let i = 0; i < this.dimension * this.dimension; i++) {
+			
+			const tile = new Tile(tiles[i])
+
+			// Store in this's Tiles array.
+			this.tiles[i] = tile;
+		}
+	}
+
+	/**
+	 * Converts this's Tile array into a texture filename array for passing to client.
+	 */
+	tilesToTextures() {
+
+		// Convert 1d array to 2d.
+		for (var i = 0; i < this.dimension; i++) {
+			
+			let tempArr = [];
+			for (var j = 0; j < this.dimension; j++) {
+				
+				tempArr.push(this.tiles[i * this.dimension + j].texture);
+			}
+
+			this.textureArray.push(tempArr);
+		}
+		
+		// console.log(this.textureArray);
+	}
+
+	/**
+	 * Converts tile "coords" to the corresponding Tile in this.tiles.
+	 * 
+	 * @param  {[type]} tileCoords [description]
+	 * @return {[type]}            [description]
+	 */
+	tileCoordsToTile(tileCoords) {
+
+		return this.tiles[Math.floor(tileCoords.y) * this.dimension + Math.floor(tileCoords.x)];
+	}
+
+	/**
+	 * Converts pixel coordinates to tile coords.
+	 * 
+	 * @param  Object coords [Pixel coords]
+	 * @return Object        [Tile coords]
+	 */
+	pixelCoordsToTileCoords(pixelCoords) {
+
+		// console.log(pixelCoords);
+		const tileCoords = {};
+
+		tileCoords.x = Math.floor(pixelCoords.x / TILE_LENGTH);
+		tileCoords.y = Math.floor(pixelCoords.y / TILE_LENGTH) - 1;
+
+		console.log(tileCoords);
+		return tileCoords;
+	}
+
+	/**
+	 * Converts pixel coords to the Tile described by their Tile coord equivalent.
+	 * 
+	 * @param  {[type]} pixelCoords [description]
+	 * @return {[type]}             [description]
+	 */
+	pixelCoordsToTile(pixelCoords) {
+
+		return this.tileCoordsToTile(this.pixelCoordsToTileCoords(pixelCoords));
+	}
+}
+
+// Static object enumerating different tile textures.
+Map.TILE_TEXTURES = {
+	
+	// Dirt.
+	dirt: "dirt.png"
+}
+
+// Static object enumerating different physical types for tiles.
+Map.TILE_BODIES = {
+
+	// Solid.
+	solid: "solid",
+
+	// One Way.
+	oneWay: "oneWay",
+
+	// Air.
+	air: "air"
+}
+
+// Enumerating ombined object types.
+Map.TILE_TYPES = {
+
+	air: {body: Map.TILE_BODIES.air, texture : ""},
+	floor_dirt: {body: Map.TILE_BODIES.solid, texture : Map.TILE_TEXTURES.dirt},
+	platform_dirt: {body: Map.TILE_BODIES.oneWay, texture : Map.TILE_TEXTURES.dirt}
+}
+/**
+ * Class representing the tiles in the tilemap.
+ */
+class Tile {
+
+	/**
+	 * Constructor
+	 * @param  TileType  type [The type of tile. From definitions in Map.TILE_TYPES]
+	 */
+	constructor(type) {
+
+		this.body = type.body;
+		this.texture = type.texture;
+	}
+}
 
 /**
  * Class representing Entities, which are any moving or physics-bound objects
@@ -73,13 +220,13 @@ class Entity {
 	updatePos() {
 
 		// Basic pos change by speed
-		this.x += this.xSpeed;
-		this.y += this.ySpeed;
+		this.x += Math.floor(this.xSpeed);
+		this.y += Math.floor(this.ySpeed);
 
 		// X edge detection
-		if (this.x + this.width/2 > levelWidth) { // Right edge
+		if (this.x + this.width > levelWidth) { // Right edge
 			
-			this.x = levelWidth - this.width/2;
+			this.x = levelWidth - this.width;
 			this.xSpeed = 0;
 		
 		} else if(this.x <= 0) { // Left edge
@@ -93,7 +240,7 @@ class Entity {
 		if (this.y >= levelHeight) { // Bottom edge
 			
 			this.y = levelHeight;
-			// this.ySpeed = -(Math.sqrt(this.ySpeed)); // Slight bounce effect. May remove.
+			// this.ySpeed = -(Math.sqrtthis.ySpeed)); // Slight bounce effect. May remove.
 			this.ySpeed = 0; // Slight bounce effect. May remove.
 		
 		} else if(this.y <= 0) { // Top edge
@@ -152,10 +299,12 @@ class Player extends Entity {
 	 */
 	constructor(id) {
 
+		// Call Entity constructor
 		super();
 		
-		// Create HitBox for this. Curently not used.
-		// this.hitBox = new HitBox({x: this.x, y: this.y}, {x: this.width/2, y: this.height/2});
+		// Create HitBox for this.
+		this.hitBox = new HitBox({x: this.x, y: this.y}, {x: this.width/2, y: this.height/2});
+
 		this.id = id; // Unique ID
     	this.score = 0; // Score
 
@@ -255,7 +404,7 @@ class Player extends Entity {
 	handleJump() {
 
 		// Make sure to check movement state
-		console.log(this.updateOnGround());			
+		// console.log(this.updateOnGround());			
 		
 		// Sending to proper method
 		if(this.inDash) { // Already dashing
@@ -289,7 +438,7 @@ class Player extends Entity {
 
 		// Get direction of keyPresses
 		const dir = this.direction();
-		console.log(dir);
+		// console.log(dir);
 
 		// If both axes are activated, reduce dash time 
 		if(dir.x && dir.y){
@@ -328,7 +477,7 @@ class Player extends Entity {
 
 		// Get direction of keyPresses
 		const dir = this.direction();
-		console.log(dir);
+		// console.log(dir);
 
 		// Set x speed to dodgeSpeed
 		this.xSpeed = dir.x * this.dodgeSpeed;
@@ -364,6 +513,8 @@ class Player extends Entity {
 	 * @return Boolean [True if on ground]
 	 */
 	updateOnGround() {
+
+		// console.log(levelMap.pixelCoordsToTile({x:this.x,y:this.y}));
 
 		// If standing on ground (currently level bottom)
 		if(this.y >= levelHeight - (this.height/2)) {
@@ -431,12 +582,18 @@ class Player extends Entity {
         }
 
         // If jumping, influence x speed slightly only
-        if(this.inJump && !this.inDash) {
+        else if(this.inJump) {
 
         	// Get direction
         	const dir = this.direction();
 
-        	this.xSpeed += dir.x * jumpSpeed;
+        	// this.xSpeed = dir.x * this.jumpSpeed;
+        	if(this.pressingRight) 
+        		this.xSpeed = this.walkSpeed;
+        	else if(this.pressingLeft) 
+        		this.xSpeed = -this.walkSpeed;
+        	else 
+        		this.xSpeed;
         }
     }
 
@@ -533,7 +690,7 @@ Player.onConnect = function(socket) {
 
 	// Create new player with given id property of socket.
 	const player = new Player(socket.id);
-	console.log(Player.list);
+	// console.log(Player.list);
 
 	// Handling keyPresses 
 	socket.on('keyPress', function(data) {
@@ -594,11 +751,36 @@ Player.update = function() {
 }
 
 // Level Specific Info.
-// Will be made dynamic later!
-// These are in pixels.
+// Will be made dynamic later as part of a level creation/reading/generating system.
+// Units in pixels.
 
-const levelWidth = 800;
-const levelHeight = 800;
+const levelWidth = 12 * TILE_LENGTH;
+const levelHeight = 12 * TILE_LENGTH;
+const levelBg = "public/img/bg.png";
+
+// Hardcoding level design right now for a 12x12:
+const a = Map.TILE_TYPES.air;
+const s = Map.TILE_TYPES.floor_dirt;
+const o = Map.TILE_TYPES.platform_dirt;
+
+const tiles = [
+a , a , a , a , a , a , a , a , a , a , a , a ,
+a , a , a , a , a , a , o , o , a , a , a , a ,
+a , a , a , a , a , a , a , a , a , a , a , a ,
+a , a , a , a , a , a , a , o , o , o , o , a ,
+a , a , a , a , a , a , a , a , a , a , a , a ,
+a , a , a , a , a , a , a , a , a , a , a , a ,
+a , a , a , a , a , a , a , a , a , a , a , a ,
+a , o , o , o , o , o , a , a , a , a , a , a ,
+a , a , a , a , a , a , a , a , a , a , a , a ,
+a , a , a , a , a , a , a , a , a , a , a , a ,
+a , a , a , a , a , a , a , a , a , a , a , a ,
+s , s , s , s , s , s , s , s , s , s , s , s
+];
+
+const levelMap = new Map(TILE_LENGTH, 12, tiles);
+// console.log(levelMap);
+// console.log(levelMap.tiles);
 
 //// Express Functionality
 
@@ -620,6 +802,7 @@ app.use('/public', express.static(__dirname + '/public'));
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const SOCKET_LIST = {}; // Socket holder
+let SOCKET_COUNT = 0;
 
 
 /**
@@ -634,7 +817,7 @@ const SOCKET_LIST = {}; // Socket holder
 io.sockets.on('connection', function(socket) {
 
 	// Generate random id for socket from 0 to 10.
-	socket.id = Math.floor(Math.random() * 10);
+	socket.id = SOCKET_COUNT++;
 	
 	// Add socket to global socket list.
 	SOCKET_LIST[socket.id] = socket;
@@ -647,7 +830,8 @@ io.sockets.on('connection', function(socket) {
 	socket.emit('init', {
 		width: levelWidth,
 		height: levelHeight,
-		bg: "public/img/bg.png"
+		bg: levelBg,
+		map: levelMap.textureArray
 	});
 
 	// Once connected, set a handler for disconnects as well.
@@ -657,6 +841,8 @@ io.sockets.on('connection', function(socket) {
 		delete SOCKET_LIST[socket.id];
 		// Run player disconnect handler.
 		Player.onDisconnect(socket);
+		console.log("Deleting player", socket.id);
+		SOCKET_COUNT = Math.max(Object.keys(SOCKET_LIST));
 	});
 });
 
@@ -668,7 +854,7 @@ io.sockets.on('connection', function(socket) {
  * 
  * @param  Function 		[The function to call every tick]
  */
-setInterval(function() {
+function updateLoop() {
 
 	// Create array to send to socket from Player.update().
 	const pack = Player.update();
@@ -680,8 +866,28 @@ setInterval(function() {
 		socket.emit('newPos', pack);
 	}
 
-}, TICK_INTERVAL);
+}
+// This polyfill is adapted from the MIT-licensed
+// https://github.com/underscorediscovery/realtime-multiplayer-in-html5
+// var requestAnimationFrame = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (function() {
+//     var lastTimestamp = Date.now(),
+//         now,
+//         timeout;
+//     return function(callback) {
+//         now = Date.now();
+//         timeout = Math.max(0, TICK_INTERVAL - (now - lastTimestamp));
+//         lastTimestamp = now + timeout;
+//         return setTimeout(function() {
+//             callback(now + timeout);
+//         }, timeout);
+//     };
+// })(),
 
+// cancelAnimationFrame = typeof cancelAnimationFrame === 'function' ? cancelAnimationFrame : clearTimeout;
+
+// requestAnimationFrame(updateLoop);
+
+setInterval(updateLoop, TICK_INTERVAL);
 
 // Starting server
 http.listen(8083);

@@ -35,17 +35,17 @@ const o = Map.TILE_TYPES.platform_dirt;
 
 const tiles = [
 a , a , a , a , a , a , a , a , a , a , a , a ,
+a , a , a , a , a , a , a , a , a , a , a , a ,
 a , a , a , a , a , a , o , o , a , a , a , a ,
 a , a , a , a , a , a , a , a , a , a , a , a ,
+a , a , a , a , a , a , a , a , a , a , a , a ,
 a , a , a , a , a , a , a , o , o , o , o , a ,
-a , a , a , a , a , a , a , a , a , a , a , a ,
-a , a , a , a , a , a , a , a , a , a , a , a ,
 a , a , a , a , a , a , a , a , a , a , a , a ,
 a , o , o , o , o , o , a , a , a , a , a , a ,
 a , a , a , a , a , a , a , a , a , a , a , a ,
 a , a , a , a , a , a , a , a , a , a , a , a ,
 a , a , a , a , a , a , a , a , a , a , a , a ,
-s , s , s , s , s , s , s , s , s , s , s , s
+s , a , a , a , s , a , a , a , s , a , s , a
 ];
 
 const levelGravity = 1;

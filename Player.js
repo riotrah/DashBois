@@ -48,6 +48,8 @@ class Player extends Entity {
     	// Walking and jumping speeds
     	this.walkSpeed = 10;
 		this.jumpSpeed = -20;
+		this.maxYSpeed = 30;
+		// this.prevYSpeed = 0;
 
 		// Dashing speed
 		this.dashSpeed = 20;
@@ -233,9 +235,16 @@ class Player extends Entity {
 
 		// console.log(levelMap.pixelCoordsToTile({x:this.x,y:this.y}));
 
+		// console.log(this.checkBottomCollision(this.coords));
+
 		// If standing on ground (currently level bottom)
-		if(this.y >= (this.map.tileLength * this.map.dimension) - (this.height/2)) {
+		if(this.checkBottomCollision(this.coords) === 64 || this.y >= (this.map.tileLength * this.map.dimension) - (this.height/2)) {
+		// if(this.y >= (this.map.tileLength * this.map.dimension) - (this.height/2) || this.map.pixelCoordsToTile({x: this.x, y: this.y + 1}).body !== "air") {
 			
+			// console.log(this.map.pixelCoordsToTile({x: this.x, y: this.y + 1}));
+
+			console.log('On Ground');
+
 			// Set movement states
 			this.onGround = true;
 			this.inJump = false;
@@ -246,6 +255,7 @@ class Player extends Entity {
 
 			// Make sure gravity returns to normal on ground
 			this.yAccel = this.map.gravity;
+			// this.ySpeed = 0;
 
 			return true;
 		}
@@ -302,15 +312,15 @@ class Player extends Entity {
         else if(this.inJump) {
 
         	// Get direction
-        	const dir = this.direction();
+        	// const dir = this.direction();
 
         	// this.xSpeed = dir.x * this.jumpSpeed;
         	if(this.pressingRight) 
         		this.xSpeed = this.walkSpeed;
         	else if(this.pressingLeft) 
         		this.xSpeed = -this.walkSpeed;
-        	else 
-        		this.xSpeed;
+        	// else 
+        		// this.xSpeed;
         }
     }
 
@@ -383,7 +393,6 @@ class Player extends Entity {
     	
     	// Update facing direction
     	this.direction();
-
     	// Call other update methods, including super's position update
     	this.updateOnGround();
         this.updateSpeed();

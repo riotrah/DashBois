@@ -17,7 +17,7 @@ class Map {
 		// Set map dimensions
 		this.dimension = dimension;
 
-		// 2D array representing the tiles
+		// Array representing the tiles
 		this.tiles = [];
 		
 		this.parse(givenTiles);
@@ -71,8 +71,17 @@ class Map {
 	 */
 	tileCoordsToTile(tileCoords) {
 
-		console.log(this.tiles[Math.floor(tileCoords.y) * this.dimension + Math.floor(tileCoords.x)]);
+		// console.log("map.js:", tileCoords);
+		// console.log("map.js:", Math.floor(tileCoords.y) * this.dimension + Math.floor(tileCoords.x));
+		// console.log("map.js:", this.tiles[Math.floor(tileCoords.y) * this.dimension + Math.floor(tileCoords.x)]);
+		
+		if(tileCoords.x <= -1 || tileCoords.x >= 12 || tileCoords.y <= -1 || tileCoords.y >= 12) {
+			console.log('out of tile map bounds:', tileCoords);
+			return new Tile(Map.TILE_TYPES.floor_dirt);
+		}
+
 		return this.tiles[Math.floor(tileCoords.y) * this.dimension + Math.floor(tileCoords.x)];
+	
 	}
 
 	/**
@@ -83,13 +92,13 @@ class Map {
 	 */
 	pixelCoordsToTileCoords(pixelCoords) {
 
-		console.log(pixelCoords);
+		// console.log("map.js", pixelCoords);
 		const tileCoords = {};
 
 		tileCoords.x = Math.floor(pixelCoords.x / this.tileLength);
-		tileCoords.y = Math.floor(pixelCoords.y / this.tileLength);
+		tileCoords.y = Math.floor(pixelCoords.y / this.tileLength) - 1;
 
-		console.log(tileCoords);
+		// console.log("map.js", tileCoords);
 		return tileCoords;
 	}
 

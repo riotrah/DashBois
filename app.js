@@ -40,12 +40,12 @@ a , a , a , a , a , a , o , o , a , a , a , a ,
 a , a , a , a , a , a , a , a , a , a , a , a ,
 a , a , a , a , a , a , a , a , a , a , a , a ,
 a , a , a , a , a , a , a , o , o , o , o , a ,
-a , a , a , a , a , a , a , a , a , a , a , a ,
+a , o , a , a , a , a , a , a , a , a , a , a ,
 a , o , o , o , o , o , a , a , a , a , a , a ,
 a , a , a , a , a , a , a , a , a , a , a , a ,
 a , a , a , a , a , a , a , a , a , a , a , a ,
-a , a , a , a , a , a , a , a , a , a , a , a ,
-s , a , a , a , s , a , a , a , s , a , s , a
+a , s , a , a , s , a , a , a , s , a , a , a ,
+s , s , s , s , s , s , s , s , s , s , s , s
 ];
 
 const levelGravity = 1;

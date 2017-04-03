@@ -36,7 +36,10 @@ class Map {
 		// Create a new Tile object from the given tile type for each element in the array.
 		for(let i = 0; i < this.dimension * this.dimension; i++) {
 			
-			const tile = new Tile(tiles[i])
+			const tile = new Tile(tiles[i], {
+				x: (i % this.dimension) * this.tileLength,
+				y: (i / this.dimension) * this.tileLength
+			})
 
 			// Store in this's Tiles array.
 			this.tiles[i] = tile;
@@ -76,8 +79,11 @@ class Map {
 		// console.log("map.js:", this.tiles[Math.floor(tileCoords.y) * this.dimension + Math.floor(tileCoords.x)]);
 		
 		if(tileCoords.x <= -1 || tileCoords.x >= 12 || tileCoords.y <= -1 || tileCoords.y >= 12) {
-			console.log('out of tile map bounds:', tileCoords);
-			return new Tile(Map.TILE_TYPES.floor_dirt);
+			// console.log('out of tile map bounds:', tileCoords);
+			return new Tile(Map.TILE_TYPES.floor_dirt, {
+				x: tileCoords.x,
+				y: tileCoords.y
+			});
 		}
 
 		return this.tiles[Math.floor(tileCoords.y) * this.dimension + Math.floor(tileCoords.x)];
@@ -149,12 +155,15 @@ class Tile {
 
 	/**
 	 * Constructor
-	 * @param  TileType  type [The type of tile. From definitions in Map.TILE_TYPES]
+	 * @param  TileType  type   [The type of tile. From definitions in Map.TILE_TYPES]
+	 * @param  Object    coords [The coordinates of the tile's position]
 	 */
-	constructor(type) {
+	constructor(type, coords) {
 
 		this.body = type.body;
 		this.texture = type.texture;
+		this.x = coords.x;
+		this.y = coords.y;
 	}
 }
 

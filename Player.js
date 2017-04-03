@@ -238,7 +238,7 @@ class Player extends Entity {
 		// console.log(this.checkBottomCollision(this.coords));
 
 		// If standing on ground (currently level bottom)
-		if(this.checkBottomCollision(this.coords) === 64 || this.y >= (this.map.tileLength * this.map.dimension) - (this.height/2)) {
+		if(this.checkYCollision( Math.sign(this.ySpeed), this.coords) === 0 || this.y >= (this.map.tileLength * this.map.dimension) - (this.height/2)) {
 		// if(this.y >= (this.map.tileLength * this.map.dimension) - (this.height/2) || this.map.pixelCoordsToTile({x: this.x, y: this.y + 1}).body !== "air") {
 			
 			// console.log(this.map.pixelCoordsToTile({x: this.x, y: this.y + 1}));
@@ -255,7 +255,8 @@ class Player extends Entity {
 
 			// Make sure gravity returns to normal on ground
 			this.yAccel = this.map.gravity;
-			// this.ySpeed = 0;
+
+			this.ySpeed = 0;
 
 			return true;
 		}
@@ -309,16 +310,16 @@ class Player extends Entity {
         }
 
         // If jumping, influence x speed slightly only
-        else if(this.inJump) {
+        else if(this.inJump && !this.inDash) {
 
         	// Get direction
         	// const dir = this.direction();
 
         	// this.xSpeed = dir.x * this.jumpSpeed;
         	if(this.pressingRight) 
-        		this.xSpeed = this.walkSpeed;
+        		this.xSpeed =  this.walkSpeed * 0.5;
         	else if(this.pressingLeft) 
-        		this.xSpeed = -this.walkSpeed;
+        		this.xSpeed = -this.walkSpeed * 0.5;
         	// else 
         		// this.xSpeed;
         }
@@ -338,7 +339,7 @@ class Player extends Entity {
     		this.currentSprite = "jump";
 
     	// Post jump fall
-    	else if(this.ySpeed > 0)
+    	else if(!this.onGround && this.ySpeed > 0)
     		this.currentSprite = "fall";
 
     	// Post dash fall
@@ -376,6 +377,7 @@ class Player extends Entity {
     	// If still dashing, reduce dash timer
     	if(this.dashTimer > 0) { 
     		
+    		this.yAccel = 0;
     		this.dashTimer--;
     	
     	} 

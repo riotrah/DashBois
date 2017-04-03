@@ -18,6 +18,7 @@ class Entity {
 		// Axes positions (from top left as zero)
 		this.x = 250;
 		this.y = 250;
+		this.yPrev;
 
 		// Dimensions
 		this.width = 30;
@@ -26,6 +27,7 @@ class Entity {
 		// Axes speeds
 		this.xSpeed = 0;
 		this.ySpeed = 0;
+		// this.yPrevSpeed = 0;
 
     	// Axes accelerations
 		this.xAccel = 0;
@@ -58,69 +60,9 @@ class Entity {
 	 * @param  {[type]} coord [description]
 	 * @return {[type]} 	  [description]
 	 */
-	checkLeftCollision(coords) {
-
-		// const map = this.map;
-		let hit = false;
-		let path = 0;
-		let curCoords = {
-			x: coords.x,
-			y: coords.y
-		};
-		
-		// pixel loop
-			// One pixel at a time, move left until a tile.length num is reached
-		while(!hit) {
-
-			// check for solid
-			let curTile = this.map.pixelCoordsToTile(curCoords);
-
-			// if hit 
-			if(curTile.body === "solid") {
-				hit = true;
-				break;
-				
-			} else {
-			// 		if tile length multiple
-				if(curCoords.x % this.map.tileLength === 0) {
-					break;
-				}
-			}
-			path++;
-			curCoords.x--;
-		}
-
-		// tile length loop
-			// tile length pixels at a time
-		while(!hit) {
-			
-
-			//  check for solid
-			let curTile = this.map.pixelCoordsToTile(curCoords);
-			
-			//  if hit
-			if(curTile.body === "solid") {
-				hit = true;
-				break;
-			
-			}
-			path += this.map.tileLength;
-			curCoords.x -= this.map.tileLength;
-
-		}
-
-		return path;
-
-	}
-
-	/**
-	 * [checkLeftCollision description]
-	 * @param  {[type]} coord [description]
-	 * @return {[type]} 	  [description]
-	 */
 	checkXCollision(dir, coords) {
 
-		console.log(dir, coords);
+		// console.log("Xcollision", dir, coords);
 		if(dir === 0) {
 			return 0;
 		}
@@ -134,69 +76,31 @@ class Entity {
 		
 		// pixel loop
 			// One pixel at a time, move left until a tile.length num is reached
-		// while(!hit) {
-
-		// 	// check for solid
-		// 	let curTile = this.map.pixelCoordsToTile(curCoords);
-
-		// 	// if hit 
-		// 	if(curTile.body === "solid") {
-		// 		hit = true;
-		// 		break;
-				
-		// 	} else {
-		// 	// 		if tile length multiple
-		// 		if(curCoords.x % this.map.tileLength === 0) {
-		// 			break;
-		// 		}
-		// 	}
-		// 	path++;
-		// 	// curCoords.x--;
-		// 	curCoords.x += dir;
-		// }
-
-		// // tile length loop
-		// 	// tile length pixels at a time
-		// while(!hit) {
-			
-
-		// 	//  check for solid
-		// 	let curTile = this.map.pixelCoordsToTile(curCoords);
-			
-		// 	//  if hit
-		// 	if(curTile.body === "solid") {
-		// 		hit = true;
-		// 		break;
-			
-		// 	}
-		// 	path += this.map.tileLength;
-		// 	curCoords.x += dir * this.map.tileLength;
-
-		// }
-
 		while(!hit) {
 
 			// check for solid
 			let curTile = this.map.pixelCoordsToTile(curCoords);
 
 			// if hit 
-			if(curTile.body === "solid") {
+			if((curTile.body === "solid") || (curTile.body === "oneWay" && this.yPrev === this.y)) {
+				
 				hit = true;
 				break;
+				
 			}
-			// pixel level
-			
+
+			// 		if tile length multiple
 			if(curCoords.x % this.map.tileLength !== 0) {
+				// break;
 				path++;
 				curCoords.x += dir;
 			} else {
-				path += this.map.tileLength;
-				curCoords.x += dir * this.map.tileLength;
+				path += 		this.map.tileLength;
+				curCoords.x +=	this.map.tileLength * dir;
 			}
 		}
 
-
-		return path;
+		return path ;
 
 	}
 
@@ -207,266 +111,64 @@ class Entity {
 	 */
 	checkYCollision(dir, coords) {
 
-		console.log(dir, coords);
+		// console.log("Y collision", dir, coords);
 		if(dir === 0) {
 			return 0;
 		}
 		// const map = this.map;
 		let hit = false;
 		let path = 0;
-		let curCoords = {
-			x: coords.x,
+		let curCoordsL = {
+			x: coords.x + 1,
+			y: coords.y + (1 + dir) * this.map.tileLength/2
+		};
+		let curCoordsR = {
+			x: coords.x + this.width - 1,
 			y: coords.y + (1 + dir) * this.map.tileLength/2
 		};
 		
 		// pixel loop
 			// One pixel at a time, move left until a tile.length num is reached
-		// while(!hit) {
-
-		// 	// check for solid
-		// 	let curTile = this.map.pixelCoordsToTile(curCoords);
-
-		// 	// if hit 
-		// 	if(curTile.body === "solid") {
-		// 		hit = true;
-		// 		break;
-				
-		// 	} else {
-		// 	// 		if tile length multiple
-		// 		if(curCoords.y % this.map.tileLength === 0) {
-		// 			break;
-		// 		}
-		// 	}
-		// 	path++;
-		// 	// curCoords.x--;
-		// 	curCoords.y += dir;
-		// }
-
 		while(!hit) {
 
 			// check for solid
-			let curTile = this.map.pixelCoordsToTile(curCoords);
+			let curTileL = this.map.pixelCoordsToTile(curCoordsL);
+			let curTileR = this.map.pixelCoordsToTile(curCoordsR);
 
-			// if hit 
-			if(curTile.body !== "air") {
+			// FIX FOR ONE WAY
+
+			// if hit
+			// if(curTile.body === "solid") {
+			// console.log('curTile.y', curTile.y);
+			if(curTileL.body === "solid" || curTileR.body === "solid") {
+
 				hit = true;
 				break;
 			}
-			// pixel level
 			
-			if(curCoords.y % this.map.tileLength !== 0) {
+			else if ((curTileL.body === "oneWay" & this.yPrev < curTileL.y) || (curTileR.body === "oneWay" & this.yPrev < curTileR.y)) {
+
+				// console.log('	One way!');
+				hit = true;
+				break;
+
+			} 
+
+			// 		if tile length multiple
+			if(curCoordsL.y % this.map.tileLength !== 0) {
+				// break;
 				path++;
-				curCoords.y += dir;
+				curCoordsL.y += dir;
+				curCoordsR.y += dir;
 			} else {
-				path += this.map.tileLength;
-				curCoords.y += dir * this.map.tileLength;
+				path += 		this.map.tileLength;
+				curCoordsL.y +=	this.map.tileLength * dir;
+				curCoordsR.y +=	this.map.tileLength * dir;
 			}
 		}
-
-		// tile length loop
-			// tile length pixels at a time
-		// while(!hit) {
-			
-
-		// 	//  check for solid
-		// 	let curTile = this.map.pixelCoordsToTile(curCoords);
-			
-		// 	//  if hit
-		// 	if(curTile.body === "solid") {
-		// 		hit = true;
-		// 		break;
-			
-		// 	}
-		// 	path += this.map.tileLength;
-		// 	curCoords.y += dir * this.map.tileLength;
-
-		// }
 
 		return path;
 
-	}
-
-	/**
-	 * [checkRightCollision description]
-	 * @param  {[type]} coords [description]
-	 * @return {[type]}       [description]
-	 */
-	checkRightCollision(coords) {
-		// const map = this.map;
-		let hit = false;
-		let path = 0;
-		let curCoords = {
-			x: coords.x,
-			y: coords.y
-		};
-		
-		// pixel loop
-			// One pixel at a time, move left until a tile.length num is reached
-		while(!hit) {
-
-			// check for solid
-			let curTile = this.map.pixelCoordsToTile(curCoords);
-
-			// if hit 
-			if(curTile.body === "solid") {
-				hit = true;
-				break;
-				
-			// 	else
-			} else {
-				if(curCoords.x % this.map.tileLength === 0) {
-					break;
-					
-				}
-			}
-			path++;
-			curCoords.x++;
-		}
-
-		// tile length loop
-			// tile length pixels at a time
-		while(!hit) {
-
-			
-			path += this.map.tileLength;
-			curCoords.x += this.map.tileLength;
-
-			//  check for solid
-			let curTile = this.map.pixelCoordsToTile(curCoords);
-			
-			//  if hit
-			if(curTile.body === "solid") {
-				hit = true;
-				break;
-			
-			}
-
-		}
-
-		return path;
-	}
-
-	/**
-	 * [checkRightCollision description]
-	 * @param  {[type]} coords [description]
-	 * @return {[type]}       [description]
-	 */
-	checkTopCollision(coords) {
-
-		let hit = false;
-		let path = 0;
-		let curCoords = {
-			x: coords.x,
-			y: coords.y
-		};
-
-		// pixel loop
-			// One pixel at a time, move left until a tile.length num is reached
-		while(!hit) {
-
-			// check for solid
-			let curTile = this.map.pixelCoordsToTile(curCoords);
-
-			// if hit 
-			if(curTile.body === "solid") {
-				hit = true;
-				break;
-				
-			// 	else
-			} else {
-				if(curCoords.y % this.map.tileLength === 0) {
-					break;
-					
-				}
-			}
-			path++;
-			curCoords.y--;
-		}
-
-		// tile length loop
-			// tile length pixels at a time
-		while(!hit) {
-			
-			//  check for solid
-			let curTile = this.map.pixelCoordsToTile(curCoords);
-			
-			//  if hit
-			if(curTile.body === "solid") {
-				hit = true;
-				break;
-			
-			}
-			path += this.map.tileLength;
-			curCoords.y -= this.map.tileLength;
-
-		}
-
-		return path;
-	}
-
-	/**
-	 * [checkRightCollision description]
-	 * @param  {[type]} coords [description]
-	 * @return {[type]}       [description]
-	 */
-	checkBottomCollision(coords) {
-
-		let hit = false;
-		let path = 0;
-		let curCoords = {
-			x: coords.x,
-			y: coords.y
-		};
-		
-		// pixel loop
-			// One pixel at a time, move left until a tile.length num is reached
-		while(!hit) {
-
-
-			// check for solid
-			let curTile = this.map.pixelCoordsToTile(curCoords);
-
-			// if hit 
-			if(curTile.body !== "air") {
-				hit = true;
-				break;
-				
-			} else {
-				if(curCoords.y % this.map.tileLength === 0) {
-					break;
-					
-				}
-			}
-			path++;
-			curCoords.y++;
-		}
-
-		// tile length loop
-			// tile length pixels at a time
-		while(!hit) {
-
-			
-			path += this.map.tileLength;
-			curCoords.y += this.map.tileLength;
-
-			//  check for solid
-			let curTile = this.map.pixelCoordsToTile(curCoords);
-			
-			//  if hit
-			if(curTile.body !== "air") {
-			//  	return path
-				hit = true;
-				// return path;
-				break;
-			
-			}
-			//  else
-			//  	loop again
-
-		}
-
-		// console.log("	path:", path);
-		return path;
 	}
 
 	/** 
@@ -476,10 +178,13 @@ class Entity {
 	 */
 	update() {
 		// this.xSpeed += this.xAccel;
+		this.yPrev = this.y;
+		console.log('yPrev', this.yPrev);
 		if(this.ySpeed <= Entity.TERMINAL_VELOCITY) {
 			this.ySpeed += this.yAccel;
 		}
 		this.updatePos();
+		console.log('y:', this.y);
 	}
 
 	/**
@@ -487,23 +192,10 @@ class Entity {
 	 */
 	updatePos() {
 
+		let potentialPath;
+		let minPath;
 
 		// Collision X Check
-		let potentialPath;
-		let minPath
-
-		// if(this.xSpeed < 0) { // Moving left
-		// 	xPotentialPath = this.checkLeftCollision({x: this.x, y: this.y});
-		// 	// console.log('xPotentialPath:', xPotentialPath, 'xSpeed:', this.xSpeed);
-		// 	this.x -= Math.floor(Math.min(Math.abs(this.xSpeed), Math.abs(xPotentialPath)));
-		// 	if(xPotentialPath === 0)
-		// 		this.xSpeed = 0;
-		// } else if(this.xSpeed > 0) { // Moving right
-		// 	xPotentialPath = this.checkRightCollision({x: this.x + this.width, y: this.y});
-		// 	this.x += Math.floor(Math.min(Math.abs(this.xSpeed), Math.abs(xPotentialPath)));
-		// 	if(xPotentialPath === 0)
-		// 		this.xSpeed = 0;
-		// }
 		
 		potentialPath = 	this.checkXCollision(Math.sign(this.xSpeed), this.coords);
 		minPath = 			Math.min(Math.abs(this.xSpeed), Math.abs(potentialPath));
@@ -511,27 +203,13 @@ class Entity {
 		this.x += 			Math.floor(minPath);
 
 		// Collision Y Check
-		// let yPotentialPath;
 
-		// if(this.ySpeed < 0) { // Moving up
-			// yPotentialPath = this.checkTopCollision({x: this.x, y: this.y});
-			// this.y -= Math.floor(Math.min(Math.abs(this.ySpeed), Math.abs(yPotentialPath)));
-			// if(yPotentialPath === 0)
-				// this.ySpeed = 0;
-		// } else if(this.ySpeed > 0) { // Moving down
-			// yPotentialPath = this.checkBottomCollision({x: this.x, y: this.y + this.height});
-			// this.y += Math.floor(Math.min(Math.abs(this.ySpeed), Math.abs(yPotentialPath)));
-			// if(yPotentialPath === 0)
-				// this.ySpeed = 0;
-		// }
-		
-		potentialPath = 	this.checkXCollision(Math.sign(this.ySpeed), this.coords);
+		potentialPath = 	this.checkYCollision(Math.sign(this.ySpeed), this.coords);
 		minPath = 			Math.min(Math.abs(this.ySpeed), Math.abs(potentialPath));
 		minPath = 			Math.sign(this.ySpeed) * minPath;
-		this.y += 			Math.floor(minPath);
+		this.y += 			(minPath);
 
 		// X edge detection
-
 		if (this.x + this.width > (this.map.tileLength * this.map.dimension)) { // Right edge
 			// 
 			this.x = (this.map.tileLength * this.map.dimension) - this.width;
@@ -547,9 +225,9 @@ class Entity {
 		// Y edge detection
 		if (this.y >= (this.map.tileLength * this.map.dimension)) { // Bottom edge
 			
-			this.y = (this.map.tileLength * this.map.dimension);
+			// this.y = (this.map.tileLength * this.map.dimension);
 			// this.ySpeed = -(Math.sqrtthis.ySpeed)); // Slight bounce effect. May remove.
-			this.ySpeed = 0; // Slight bounce effect. May remove.
+			// this.ySpeed = 0; // Slight bounce effect. May remove.
 		
 		} else if(this.y <= 0) { // Top edge
 			

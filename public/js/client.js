@@ -150,10 +150,12 @@ document.onkeyup = function(event) {
 
 	if(event.keyCode === 39)    //d
         socket.emit('keyPress',{inputId:'right',state:false});
-    else if(event.keyCode === 40)   //s
+    if(event.keyCode === 40)   //s
         socket.emit('keyPress',{inputId:'down',state:false});
-    else if(event.keyCode === 37) //a
+    if(event.keyCode === 37) //a
         socket.emit('keyPress',{inputId:'left',state:false});
-    else if(event.keyCode === 38) // w
+    if(event.keyCode === 38) // w
         socket.emit('keyPress',{inputId:'up',state:false});
+    if(event.keyCode === 32) // jump
+    	socket.emit('keyPress', {inputId: 'jump', state: false});
 };

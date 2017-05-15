@@ -89,7 +89,7 @@ class Entity {
 				
 			}
 
-			// 		if tile length multiple
+			// 	if tile length multiple
 			if(curCoords.x % this.map.tileLength !== 0) {
 				// break;
 				path++;
@@ -154,7 +154,7 @@ class Entity {
 
 			} 
 
-			// 		if tile length multiple
+			// 	if tile length multiple
 			if(curCoordsL.y % this.map.tileLength !== 0) {
 				// break;
 				path++;
@@ -179,12 +179,12 @@ class Entity {
 	update() {
 		// this.xSpeed += this.xAccel;
 		this.yPrev = this.y;
-		console.log('yPrev', this.yPrev);
+		// console.log('yPrev', this.yPrev);
 		if(this.ySpeed <= Entity.TERMINAL_VELOCITY) {
 			this.ySpeed += this.yAccel;
 		}
 		this.updatePos();
-		console.log('y:', this.y);
+		// console.log('y:', this.y);
 	}
 
 	/**
@@ -201,6 +201,9 @@ class Entity {
 		minPath = 			Math.min(Math.abs(this.xSpeed), Math.abs(potentialPath));
 		minPath = 			Math.sign(this.xSpeed) * minPath;
 		this.x += 			Math.floor(minPath);
+		if(!minPath) {
+			this.xSpeed = 0;
+		}
 
 		// Collision Y Check
 
@@ -238,6 +241,6 @@ class Entity {
 	}
 }
 
-Entity.TERMINAL_VELOCITY = 30;
+Entity.TERMINAL_VELOCITY = 20;
 
 module.exports = Entity;
